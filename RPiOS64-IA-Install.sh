@@ -54,12 +54,12 @@ fi
 
 #### GET USER INPUTS #### HOSTNAME ######################################################################################################
 read -p "Enter new hostname without .local e.g. rpi01 (.local will be automatically appended): " HOSTNAME
-while [[ "$HOSTNAME" == *.* ]]
+while [[ "$HOSTNAME_WITHOUT_LOCAL" == *.* ]]
  do
   printf " --->$RED $HOSTNAME_WITHOUT_LOCAL $NORMAL<--- Is NOT an valid HOSTNAME, try again...\n"
   read -p "Enter new hostname without .local e.g.: rpi01  : " HOSTNAME
 done
-HOSTNAME="$HOSTNAME.local"
+HOSTNAME="$HOSTNAME_WITHOUT_LOCAL.local"
 
 #### IP AND NETMASK ! ###################################################################################################################
 read -p "Enter new static IP and NETMASK e.g. 192.168.0.100/24 : " RPI_IP
@@ -189,8 +189,9 @@ $GREEN ! FIXING NETWORK CONFIGURATION.... ERRORS ARE NOMALAY FINE AND RESOLVED A
 =========================================================================================
 \n"
 printf "127.0.0.1\tlocalhost
-$RPI_IP_ONLY\t$HOSTNAME\n" > /etc/hosts
-$RPI_IP_ONLY\t$HOSTNAME_WITHOUT_LOCAL\n" > /etc/hosts
+$RPI_IP_ONLY\t$HOSTNAME
+$RPI_IP_ONLY\t$HOSTNAME_WITHOUT_LOCAL
+" > /etc/hosts
 printf "auto lo
 iface lo inet loopback
 
