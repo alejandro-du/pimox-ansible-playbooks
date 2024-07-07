@@ -54,7 +54,7 @@ fi
 
 #### GET USER INPUTS #### HOSTNAME ######################################################################################################
 read -p "Enter new hostname e.g. RPi4-01-PVE (.local will be automatically appended): " HOSTNAME
-while [[ ! "$HOSTNAME_WITHOUT_LOCAL" =~ ^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$  ]]
+while [[ ! "$HOSTNAME_WITHOUT_LOCAL" =~ ^[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9]$ ]]
  do
   printf " --->$RED $HOSTNAME_WITHOUT_LOCAL $NORMAL<--- Is NOT an valid HOSTNAME, try again...\n"
   read -p "Enter new hostname e.g.: RPi4-01-PVE  : " HOSTNAME
