@@ -9,7 +9,7 @@
         become_user: root
         shell: |
           sudo -s
-          curl https://raw.githubusercontent.com/pimox/pimox7/master/RPiOS64-IA-Install.sh > RPiOS64-IA-Install.sh
+          curl https://raw.githubusercontent.com/alejandro-du/pimox-ansible-playbooks/main/RPiOS64-IA-Install.sh > RPiOS64-IA-Install.sh
           chmod +x RPiOS64-IA-Install.sh
           echo "
           rpi01.local 192.168.1.151/24 y y Password123! Password123!" | ./RPiOS64-IA-Install.sh

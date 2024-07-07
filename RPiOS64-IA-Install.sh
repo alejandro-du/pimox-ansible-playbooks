@@ -183,16 +183,17 @@ iface eth0 inet manual
 
 auto wlan0
 iface wlan0 inet manual
-    wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
+	address $RPI_IP
+	gateway $GATEWAY
+	wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
+	dns-nameservers $GATEWAY 1.1.1.1
 
 auto vmbr0
 iface vmbr0 inet static
-        address $RPI_IP
-        gateway $GATEWAY
-        bridge-ports wlan0
-        bridge-stp off
-        bridge-fd 0
-		dns-nameservers $GATEWAY 1.1.1.1\n" > /etc/network/interfaces.new
+	address 10.10.10.11
+	bridge-ports none
+	bridge-stp off
+	bridge-fd 0\n" > /etc/network/interfaces.new
 
 #### CONFIGURE PIMOX7 BANNER #############################################################################################################
 cp /usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js /usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js.auto.backup
