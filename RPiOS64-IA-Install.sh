@@ -53,12 +53,13 @@ if [ $RPIMOD == 3 ]
 fi
 
 #### GET USER INPUTS #### HOSTNAME ######################################################################################################
-read -p "Enter new hostname e.g. RPi4-01-PVE : " HOSTNAME
-while [[ ! "$HOSTNAME" =~ ^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$  ]]
+read -p "Enter new hostname e.g. RPi4-01-PVE (.local will be automatically appended): " HOSTNAME
+while [[ ! "$HOSTNAME_WITHOUT_LOCAL" =~ ^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$  ]]
  do
-  printf " --->$RED $HOSTNAME $NORMAL<--- Is NOT an valid HOSTNAME, try again...\n"
+  printf " --->$RED $HOSTNAME_WITHOUT_LOCAL $NORMAL<--- Is NOT an valid HOSTNAME, try again...\n"
   read -p "Enter new hostname e.g.: RPi4-01-PVE  : " HOSTNAME
 done
+HOSTNAME="$HOSTNAME.local"
 
 #### IP AND NETMASK ! ###################################################################################################################
 read -p "Enter new static IP and NETMASK e.g. 192.168.0.100/24 : " RPI_IP
@@ -68,6 +69,14 @@ while [[ ! "$RPI_IP" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}+\/[0-9]+
   read -p "IPADDRESS & NETMASK ! E.G.: 192.168.0.100/24 : " RPI_IP
 done
 RPI_IP_ONLY=$(echo "$RPI_IP" | cut -d '/' -f 1)
+
+#### INTERNAL IP ! ###################################################################################################################
+read -p "Enter new internal IP and NETMASK e.g. 10.10.10.100 : " INTERNAL_IP
+while [[ ! "$INTERNAL_IP" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]
+ do
+  printf " --->$RED $INTERNAL_IP $NORMAL<--- Is NOT an valid IPv4 ADDRESS, try again...\n"
+  read -p "IPADDRESS ! E.G.: 10.10.10.100 : " INTERNAL_IP
+done
 
 #### GATEWAY ############################################################################################################################
 GATEWAY="$(echo $RPI_IP | cut -d '.' -f 1,2,3).1"
@@ -97,22 +106,27 @@ deb https://raw.githubusercontent.com/pimox/pimox7/master/ dev/
 THE NETWORK CONFIGURATION IN : $YELLOW /etc/network/interfaces $NORMAL WILL BE $RED CHANGED $NORMAL !!! TO :
 auto lo
 iface lo inet loopback
+
 iface eth0 inet manual
+
 auto wlan0
 iface wlan0 inet manual
-    wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
+	address $RPI_IP
+	gateway $GATEWAY
+	wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
+	dns-nameservers $GATEWAY 1.1.1.1
+
 auto vmbr0
 iface vmbr0 inet static
-        address $RPI_IP
-        gateway $GATEWAY
-        bridge-ports wlan0
-        bridge-stp off
-        bridge-fd 0
-		dns-nameservers $GATEWAY 1.1.1.1\n
+	address $INTERNAL_IP
+	bridge-ports none
+	bridge-stp off
+	bridge-fd 0
 =========================================================================================
 THE HOSTNAMES IN : $YELLOW /etc/hosts $NORMAL WILL BE $RED OVERWRITTEN $NORMAL !!! WITH :
 127.0.0.1\tlocalhost
 $RPI_IP_ONLY\t$HOSTNAME
+$RPI_IP_ONLY\t$HOSTNAME_WITHOUT_LOCAL
 =========================================================================================
 THESE STATEMENTS WILL BE $RED ADDED $NORMAL TO THE $YELLOW /boot/cmdline.txt $NORMAL IF NONE EXISTENT :
 cgroup_enable=cpuset cgroup_enable=memory cgroup_memory=1
@@ -176,6 +190,7 @@ $GREEN ! FIXING NETWORK CONFIGURATION.... ERRORS ARE NOMALAY FINE AND RESOLVED A
 \n"
 printf "127.0.0.1\tlocalhost
 $RPI_IP_ONLY\t$HOSTNAME\n" > /etc/hosts
+$RPI_IP_ONLY\t$HOSTNAME_WITHOUT_LOCAL\n" > /etc/hosts
 printf "auto lo
 iface lo inet loopback
 
@@ -190,10 +205,11 @@ iface wlan0 inet manual
 
 auto vmbr0
 iface vmbr0 inet static
-	address 10.10.10.11
+	address $INTERNAL_IP
 	bridge-ports none
 	bridge-stp off
-	bridge-fd 0\n" > /etc/network/interfaces.new
+	bridge-fd 0
+" > /etc/network/interfaces.new
 
 #### CONFIGURE PIMOX7 BANNER #############################################################################################################
 cp /usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js /usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js.auto.backup
