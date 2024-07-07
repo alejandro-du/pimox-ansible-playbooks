@@ -53,11 +53,11 @@ if [ $RPIMOD == 3 ]
 fi
 
 #### GET USER INPUTS #### HOSTNAME ######################################################################################################
-read -p "Enter new hostname e.g. RPi4-01-PVE (.local will be automatically appended): " HOSTNAME
-while [[ ! "$HOSTNAME_WITHOUT_LOCAL" =~ ^[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9]$ ]]
+read -p "Enter new hostname without .local e.g. rpi01 (.local will be automatically appended): " HOSTNAME
+while [[ "$HOSTNAME" == *.* ]]
  do
   printf " --->$RED $HOSTNAME_WITHOUT_LOCAL $NORMAL<--- Is NOT an valid HOSTNAME, try again...\n"
-  read -p "Enter new hostname e.g.: RPi4-01-PVE  : " HOSTNAME
+  read -p "Enter new hostname without .local e.g.: rpi01  : " HOSTNAME
 done
 HOSTNAME="$HOSTNAME.local"
 
