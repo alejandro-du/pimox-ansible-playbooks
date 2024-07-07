@@ -12,4 +12,4 @@
           curl https://raw.githubusercontent.com/alejandro-du/pimox-ansible-playbooks/main/RPiOS64-IA-Install.sh > RPiOS64-IA-Install.sh
           chmod +x RPiOS64-IA-Install.sh
           echo "
-          rpi01.local 192.168.1.151/24 y y Password123! Password123!" | ./RPiOS64-IA-Install.sh
+          {{ hostname }} {{ new_ip }} {{ internal_ip }} y y {{ new_root_password }} {{ new_root_password }}" | ./RPiOS64-IA-Install.sh

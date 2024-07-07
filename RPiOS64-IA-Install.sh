@@ -71,7 +71,7 @@ done
 RPI_IP_ONLY=$(echo "$RPI_IP" | cut -d '/' -f 1)
 
 #### INTERNAL IP ! ###################################################################################################################
-read -p "Enter new internal IP and NETMASK e.g. 10.10.10.100 : " INTERNAL_IP
+read -p "Enter new internal IP e.g. 10.10.10.100 : " INTERNAL_IP
 while [[ ! "$INTERNAL_IP" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]
  do
   printf " --->$RED $INTERNAL_IP $NORMAL<--- Is NOT an valid IPv4 ADDRESS, try again...\n"
