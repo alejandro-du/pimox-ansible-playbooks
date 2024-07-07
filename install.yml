@@ -1,15 +1,25 @@
 - name: Install Pimox
-  hosts: rpies
+  hosts: workers
   become: true
-
   tasks:
-    tasks:
-      - name: Run commands as root
-        become: true
-        become_user: root
-        shell: |
-          sudo -s
-          curl https://raw.githubusercontent.com/alejandro-du/pimox-ansible-playbooks/main/RPiOS64-IA-Install.sh > RPiOS64-IA-Install.sh
-          chmod +x RPiOS64-IA-Install.sh
-          echo "
-          {{ hostname }} {{ new_ip }} {{ internal_ip }} y y {{ new_root_password }} {{ new_root_password }}" | ./RPiOS64-IA-Install.sh
+    - name: Download Pimox install script
+      shell: curl -O https://raw.githubusercontent.com/alejandro-du/pimox-ansible-playbooks/main/RPiOS64-IA-Install.sh
+      args:
+        creates: RPiOS64-IA-Install.sh
+
+    - name: Make the Pimox install script executable
+      file:
+        path: RPiOS64-IA-Install.sh
+        mode: '0755'
+
+    - name: Run the Pimox install script
+      shell: |
+        ./RPiOS64-IA-Install.sh <<EOF
+        {{ hostname }}
+        {{ new_ip }}
+        {{ internal_ip }}
+        y
+        y
+        {{ new_root_password }}
+        {{ new_root_password }}
+        EOF
