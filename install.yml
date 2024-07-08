@@ -17,8 +17,8 @@
         ./RPiOS64-IA-Install.sh <<EOF
         {{ hostname }}
         {{ new_ip }}
-        {{ internal_ip }}
         y
+        {{ internal_ip }}
         y
         {{ new_root_password }}
         {{ new_root_password }}
