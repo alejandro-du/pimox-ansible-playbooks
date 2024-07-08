@@ -70,14 +70,6 @@ while [[ ! "$RPI_IP" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}+\/[0-9]+
 done
 RPI_IP_ONLY=$(echo "$RPI_IP" | cut -d '/' -f 1)
 
-#### INTERNAL IP ! ###################################################################################################################
-read -p "Enter new internal IP e.g. 10.10.10.100 : " INTERNAL_IP
-while [[ ! "$INTERNAL_IP" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]
- do
-  printf " --->$RED $INTERNAL_IP $NORMAL<--- Is NOT an valid IPv4 ADDRESS, try again...\n"
-  read -p "IPADDRESS ! E.G.: 10.10.10.100 : " INTERNAL_IP
-done
-
 #### GATEWAY ############################################################################################################################
 GATEWAY="$(echo $RPI_IP | cut -d '.' -f 1,2,3).1"
 read -p"Is $GATEWAY the correct gateway ?  y / n : " CORRECT
@@ -90,6 +82,17 @@ if [ "$CORRECT" != "y" ]
     read -p "THE GATEWAY IP ! E.G. 192.168.0.1 : " GATEWAY
   done
 fi
+
+#### INTERNAL IP ! ###################################################################################################################
+read -p "Enter new bridge IP and NETMASK IP e.g. 10.10.10.11/24 : " BRIDGE_IP
+while [[ ! "$BRIDGE_IP" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}+\/[0-9]+$ ]]
+ do
+  printf " --->$RED $BRIDGE_IP $NORMAL<--- Is NOT an valid IPv4 ADDRESS with NETMASK, try again...\n"
+  read -p "IPADDRESS ! E.G.: 10.10.10.11/24 : " BRIDGE_IP
+done
+
+# calculate network IP with mask from BRIDGE_IP
+BRIDGE_NETWORK=$(echo $BRIDGE_IP | cut -d '.' -f 1,2,3).0/$(echo $BRIDGE_IP | cut -d '/' -f 2)
 
 #### AGREE TO CHANGES ###################################################################################################################
 printf "
@@ -110,18 +113,23 @@ iface lo inet loopback
 iface eth0 inet manual
 
 auto wlan0
-iface wlan0 inet manual
+iface wlan0 inet static
 	address $RPI_IP
 	gateway $GATEWAY
 	wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
-	dns-nameservers $GATEWAY 1.1.1.1
+	dns-nameservers $GATEWAY 1.1.1.1 8.8.8.8
 
 auto vmbr0
 iface vmbr0 inet static
-	address $INTERNAL_IP
+	address $BRIDGE_IP
 	bridge-ports none
 	bridge-stp off
 	bridge-fd 0
+	post-up   echo 1 > /proc/sys/net/ipv4/ip_forward
+	post-up   iptables -t nat -A POSTROUTING -s '$BRIDGE_NETWORK' -o wlan0 -j MASQUERADE
+	post-down iptables -t nat -D POSTROUTING -s '$BRIDGE_NETWORK' -o wlan0 -j MASQUERADE
+	post-up   iptables -t raw -I PREROUTING -i fwbr+ -j CT --zone 1
+	post-down iptables -t raw -D PREROUTING -i fwbr+ -j CT --zone 1
 =========================================================================================
 THE HOSTNAMES IN : $YELLOW /etc/hosts $NORMAL WILL BE $RED OVERWRITTEN $NORMAL !!! WITH :
 127.0.0.1\tlocalhost
@@ -198,18 +206,23 @@ iface lo inet loopback
 iface eth0 inet manual
 
 auto wlan0
-iface wlan0 inet manual
+iface wlan0 inet static
 	address $RPI_IP
 	gateway $GATEWAY
 	wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
-	dns-nameservers $GATEWAY 1.1.1.1
+	dns-nameservers $GATEWAY 1.1.1.1 8.8.8.8
 
 auto vmbr0
 iface vmbr0 inet static
-	address $INTERNAL_IP
+	address $BRIDGE_IP
 	bridge-ports none
 	bridge-stp off
 	bridge-fd 0
+	post-up   echo 1 > /proc/sys/net/ipv4/ip_forward
+	post-up   iptables -t nat -A POSTROUTING -s '$BRIDGE_NETWORK' -o wlan0 -j MASQUERADE
+	post-down iptables -t nat -D POSTROUTING -s '$BRIDGE_NETWORK' -o wlan0 -j MASQUERADE
+	post-up   iptables -t raw -I PREROUTING -i fwbr+ -j CT --zone 1
+	post-down iptables -t raw -D PREROUTING -i fwbr+ -j CT --zone 1
 " > /etc/network/interfaces.new
 
 ### FINAL MESSAGE ########################################################################################################################
