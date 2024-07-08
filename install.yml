@@ -1,5 +1,5 @@
 - name: Install Pimox
-  hosts: workers
+  hosts: rpies
   become: true
   tasks:
     - name: Download Pimox install script

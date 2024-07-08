@@ -1,0 +1,5 @@
+- name: Ping the Pies
+  gather_facts: no
+  hosts: rpies
+  tasks:
+  - action: ping
