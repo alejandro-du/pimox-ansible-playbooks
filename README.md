@@ -23,10 +23,9 @@ Here's an example:
 
 ```yml
 [proxmox_rpies]
-192.168.1.151	ansible_user=pi	hostname=rpi01	new_ip=192.168.1.121/24	bridge_ip=10.10.10.10	new_root_password=PiPassword123!
-192.168.1.152	ansible_user=pi	hostname=rpi02	new_ip=192.168.1.122/24	bridge_ip=10.10.10.10	new_root_password=PiPassword123!
-192.168.1.153	ansible_user=pi	hostname=rpi03	new_ip=192.168.1.123/24	bridge_ip=10.10.10.10	new_root_password=PiPassword123!
-192.168.1.154	ansible_user=pi	hostname=rpi04	new_ip=192.168.1.124/24	bridge_ip=10.10.10.10	new_root_password=PiPassword123!
+192.168.1.151	ansible_user=pi	hostname=rpi01	new_ip=192.168.1.151/24	bridge_ip=10.10.11.10	new_root_password=PiPassword123!
+192.168.1.152	ansible_user=pi	hostname=rpi02	new_ip=192.168.1.152/24	bridge_ip=10.10.12.10	new_root_password=PiPassword123!
+192.168.1.153	ansible_user=pi	hostname=rpi03	new_ip=192.168.1.153/24	bridge_ip=10.10.13.10	new_root_password=PiPassword123!
 ```
 
 ## Installing Pimox
@@ -41,7 +40,7 @@ Be patient! All Raspberry Pi devices will be rebooted after Pimox/Proxmox is ins
 
 ## Creating the Proxmox cluster
 
-1. Point your browser to the Proxmox GUI on one of the nodes (for example: https://rpi01.local:8006). Make sure to use HTTPS.
+1. Point your browser to the Proxmox GUI on one of the nodes (for example: [https://192.168.1.151:8006](https://192.168.1.151:8006)). Make sure to use HTTPS.
 2. Login with `root` and the password you set for the host (for example: `Password123!`).
 3. Click on __Datacenter > Cluster > Create Cluster__, set a name for the cluster and create it.
 4. Click on __Join Information__ and copy the information.
@@ -58,7 +57,7 @@ You should have a Proxmox cluster up and running.
 Use the standard procedure to create VMs but:
 
 - In __OS__ select __Do not use any media__
-- In __System__ use OVMF (UEFI) as the BIOS and select the corresponding EFI storage.
+- In __System__ use __OVMF (UEFI)__ as the __BIOS__ and select the corresponding EFI storage.
 - Go to __Hardware__ and remove the CD/DVD drive.
 - Add a new CD/DVD drive and use SCSI (Raspberry Pi devices don't have IDE)
 - Select the ISO image of the operating system that you want to install
@@ -72,7 +71,15 @@ iface lo inet loopback
 
 auto eth0
 iface eth0 inet static
-        address 10.10.10.111
+        address 10.10.13.101
         netmask 255.255.255.0
-        gateway 10.10.10.10
+        gateway 10.10.13.10
+```
+
+To make the VMs visible from your workstation, add routes from the bridge networks to the Raspberry Pi IPs. For example, on macOS:
+
+```shell
+sudo route -n add -net 10.10.11.0/24 192.168.1.151
+sudo route -n add -net 10.10.12.0/24 192.168.1.152
+sudo route -n add -net 10.10.13.0/24 192.168.1.153
 ```
