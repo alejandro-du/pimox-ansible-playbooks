@@ -22,11 +22,11 @@ Define an inventory in the __/etc/ansible/hosts__ file with the following variab
 Here's an example:
 
 ```yml
-[rpies]
-192.168.1.151	ansible_user=pi	hostname=rpi01	new_ip=192.168.1.121/24	bridge_ip=10.10.10.11	new_root_password=PiPassword123!
-192.168.1.152	ansible_user=pi	hostname=rpi02	new_ip=192.168.1.122/24	bridge_ip=10.10.10.12	new_root_password=PiPassword123!
-192.168.1.153	ansible_user=pi	hostname=rpi03	new_ip=192.168.1.123/24	bridge_ip=10.10.10.13	new_root_password=PiPassword123!
-192.168.1.154	ansible_user=pi	hostname=rpi04	new_ip=192.168.1.124/24	bridge_ip=10.10.10.14	new_root_password=PiPassword123!
+[proxmox_rpies]
+192.168.1.151	ansible_user=pi	hostname=rpi01	new_ip=192.168.1.121/24	bridge_ip=10.10.10.10	new_root_password=PiPassword123!
+192.168.1.152	ansible_user=pi	hostname=rpi02	new_ip=192.168.1.122/24	bridge_ip=10.10.10.10	new_root_password=PiPassword123!
+192.168.1.153	ansible_user=pi	hostname=rpi03	new_ip=192.168.1.123/24	bridge_ip=10.10.10.10	new_root_password=PiPassword123!
+192.168.1.154	ansible_user=pi	hostname=rpi04	new_ip=192.168.1.124/24	bridge_ip=10.10.10.10	new_root_password=PiPassword123!
 ```
 
 ## Installing Pimox
@@ -74,5 +74,5 @@ auto eth0
 iface eth0 inet static
         address 10.10.10.111
         netmask 255.255.255.0
-        gateway 10.10.10.11
+        gateway 10.10.10.10
 ```

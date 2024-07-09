@@ -1,5 +1,5 @@
 - name: Install Pimox
-  hosts: rpies
+  hosts: proxmox_rpies
   become: true
   tasks:
     - name: Download Pimox install script
@@ -18,7 +18,7 @@
         {{ hostname }}
         {{ new_ip }}
         y
-        {{ internal_ip }}
+        {{ bridge_ip }}
         y
         {{ new_root_password }}
         {{ new_root_password }}
