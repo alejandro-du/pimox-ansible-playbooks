@@ -1,0 +1,31 @@
+---
+- name: Update WiFi SSID and PSK
+  hosts: proxmox_rpies
+  become: yes
+  tasks:
+    - name: Update SSID in wpa_supplicant.conf
+      lineinfile:
+        path: /etc/wpa_supplicant/wpa_supplicant.conf
+        regexp: '^\s*ssid=.*$'
+        line: '        ssid="{{ new_ssid }}"'
+        state: present
+
+    - name: Remove existing PSK line if present
+      lineinfile:
+        path: /etc/wpa_supplicant/wpa_supplicant.conf
+        regexp: '^\s*psk=.*$'
+        state: absent
+
+    - name: Insert PSK line without quotes
+      blockinfile:
+        path: /etc/wpa_supplicant/wpa_supplicant.conf
+        insertafter: '^\s*ssid="{{ new_ssid }}"'
+        block: |
+          psk={{ new_psk }}
+
+    - name: Reboot the system
+      reboot:
+        msg: "Reboot initiated by Ansible for applying WiFi configuration changes"
+        pre_reboot_delay: 0
+        reboot_timeout: 200
+        post_reboot_delay: 0
